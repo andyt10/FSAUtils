@@ -7,31 +7,25 @@ public class Main {
 	 */
 	public static void main(String[] args) {
 		
-		// FSA machine
-		FSA fsa = new FSA();
-		fsa.addState(0, 1, 2, false);
-		fsa.addState(1, 3, 4, false);
-		fsa.addState(2, 3, 5, false);
-		fsa.addState(3, 3, 3, false);
-		fsa.addState(4, 6, 7, false);
-		fsa.addState(5, 3, 3, true);
-		fsa.addState(6, 0, 3, false);
-		fsa.addState(7, 8, 3, false);
-		fsa.addState(8, 9, 3, false);
-		fsa.addState(9, 3, 10, false);
-		fsa.addState(10, 7, 11, true);
-		fsa.addState(11, 12, 3, false);
-		fsa.addState(12, 13, 3, false);
-		fsa.addState(13, 5, 14, false);
-		fsa.addState(14, 11, 6, false);
+		NDFSA testy = new NDFSA(1);
+
+		int[] test0 = new int[]{0,2};
+		int[] test1 = new int[3];
+		int[] test0b = new int[]{4,5};
+		int[] test0c = new int[]{9,12};
+		int[] test1d = new int[]{4,5};
+
+			
+		testy.InputTest(0,test1d,test0c,false,true);
+		testy.InputTest(1,test0,test1,true,false);
+		testy.InputTest(2,test1d,test0c,true,true);
 		
-		// Reduce the machine
-		FSAUtil.reduce(fsa);
 		
-		// Standardize the machine
-		FSAUtil.standardize(fsa);
+		//testy.PrintIntermediateMachine();
+		NDFSAUtil utility = new NDFSAUtil();
 		
-		// Output the machine to console
-		fsa.print();
+		utility.CombineTransitions(testy);
+		
+		
 	}
 }
