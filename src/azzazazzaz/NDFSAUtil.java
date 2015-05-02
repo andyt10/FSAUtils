@@ -137,11 +137,136 @@ public class NDFSAUtil
 			
 			finalStates.add(new NDFSAFinalStates(finalStates.get(0).getOneTransition(),oneStateTransitionSets));			
 		}
-		
-
-
-		System.out.println("ADDED A NEW STATE AND SET TRANSITIONS");
 //End
+
+			
+		/*
+		/*
+		 * Continue with normal combination process 'discovered state combinations' in machine NDFSA.
+		 */
+		
+		for(int i1=1;i1<finalStates.size();i1++)
+		{
+			/*
+			 * determine zero and one transitions
+			 */
+			ArrayList<Integer> oneTransition = new ArrayList<Integer>();
+			ArrayList<Integer> zeroTransition = new ArrayList<Integer>();
+			boolean isStateAcepting = false;
+			
+			for(int i2=0;i2<finalStates.get(i1).getStateSets().size();i2++)
+			{
+				int newStateBeingExamined = finalStates.get(i1).getStateSets().get(i2);
+				int oldStateIndex = -1;
+				
+				for(int i3=0;i3<existingStates.size();i3++)
+				{
+					if(existingStates.get(i3).getStateNumber() == newStateBeingExamined)
+					{
+						oldStateIndex = i3;
+						i3 = existingStates.size();
+					}
+				}
+				
+				
+				for(int i3=0;i3<existingStates.get(oldStateIndex).getZeroTransitions().size();i3++)
+				{
+					
+					if(!zeroTransition.contains(existingStates.get(oldStateIndex).getZeroTransitions().get(i3)))
+					{
+						zeroTransition.add(existingStates.get(oldStateIndex).getZeroTransitions().get(i3));
+						if(existingStates.get(oldStateIndex).getIsAccepting() == true)
+						{
+							isStateAcepting = true;
+						}
+					}
+				}
+				
+				for(int i3=0;i3<existingStates.get(oldStateIndex).getOneTransitions().size();i3++)
+				{
+					
+					if(!oneTransition.contains(existingStates.get(oldStateIndex).getOneTransitions().get(i3)))
+					{
+						oneTransition.add(existingStates.get(oldStateIndex).getOneTransitions().get(i3));
+						
+						if(existingStates.get(oldStateIndex).getIsAccepting() == true)
+						{
+							isStateAcepting = true;
+						}
+					}
+				}
+				
+			}
+			//Set the state's accepting value
+			finalStates.get(i1).setIsAccepting(isStateAcepting);
+			
+			//Determine if we have to link to existing states, or create new ones.
+			 zeroTransitionState = stateExists(zeroTransition);
+			 oneTransitionState = stateExists(oneTransition);
+			 //Convert to array for NDFSAFinalState class
+			zeroStateTransitionSets = new int[zeroTransition.size()];
+			for(int i2=0;i2<zeroStateTransitionSets.length;i2++)
+			{
+				zeroStateTransitionSets[i2] = zeroTransition.get(i2);
+			}	
+
+			int[] oneStateTransitionSets = new int[oneTransition.size()];
+				
+			for(int i2=0;i2<oneStateTransitionSets.length;i2++)
+			{
+				oneStateTransitionSets[i2] = oneTransition.get(i2);
+			}			
+				
+			
+			if(zeroTransitionState == -1 && oneTransitionState == -1)
+			{
+				if(zeroTransition.equals(oneTransition))
+				{
+				finalStates.get(i1).setZeroTransition(lastStateInMachine() + 1);
+				finalStates.get(i1).setOneTransition(lastStateInMachine() + 1);
+				int lastState = lastStateInMachine();
+				finalStates.add(new NDFSAFinalStates(lastState,zeroStateTransitionSets));
+
+				}
+				else
+				{
+					finalStates.get(i1).setZeroTransition(lastStateInMachine() + 1);
+					finalStates.get(i1).setOneTransition(lastStateInMachine() + 2);
+					int lastState = lastStateInMachine();
+					finalStates.add(new NDFSAFinalStates(lastState,zeroStateTransitionSets));
+					finalStates.add(new NDFSAFinalStates(lastState+1,oneStateTransitionSets));
+					
+				}
+				
+			}
+			else if(zeroTransitionState == -1 && oneTransitionState != -1)
+			{
+				finalStates.get(i1).setZeroTransition(lastStateInMachine() + 1);
+				int lastState = lastStateInMachine();
+				finalStates.add(new NDFSAFinalStates(lastState,zeroStateTransitionSets));
+				finalStates.get(i1).setOneTransition(oneTransitionState);				
+			}
+			else if(zeroTransitionState != -1 && oneTransitionState == -1)
+			{
+				finalStates.get(i1).setZeroTransition(zeroTransitionState);				
+				int lastState = lastStateInMachine();
+				finalStates.add(new NDFSAFinalStates(lastState,oneStateTransitionSets));				
+				finalStates.get(i1).setOneTransition(lastStateInMachine() + 1);		
+			}
+			else
+			{
+				System.out.println("readsadsd");
+			}
+			 
+		}
+			
+
+			
+			
+		
+		
+		
+		System.out.println("The machine is as follows: ");
 		for(int i1=0;i1<finalStates.size();i1++)
 		{
 			System.out.print("STATE: " + finalStates.get(i1).getStateNumber());
@@ -157,15 +282,7 @@ public class NDFSAUtil
 				System.out.println("AND IS NOT ACCEPTING");			
 			}
 			System.out.println("-----------------");
-		}
-		
-		
-			
-			
-		/*
-		/*
-		 * Continue with normal combination process 'discovered state combinations' in machine NDFSA.
-		 */
+		}		
 		
 		return null;
 	}
