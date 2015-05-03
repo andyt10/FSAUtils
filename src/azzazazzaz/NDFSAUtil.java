@@ -84,6 +84,7 @@ public class NDFSAUtil
 		{
 			thisStateSets[i1] = initialStates.get(i1).getStateNumber();
 		}		
+		
 		finalStates.add(new NDFSAFinalStates(0,thisStateSets));
 		finalStates.get(0).setIsAccepting(isInitialAccepting);
 		//Do we have a state yet?
@@ -125,10 +126,11 @@ public class NDFSAUtil
 		}	
 		finalStates.add(new NDFSAFinalStates(finalStates.get(0).getZeroTransition(),zeroStateTransitionSets));
 		
+		int[] oneStateTransitionSets;
 		
 		if(!zeroStateSets.equals(oneStateSets))
 		{
-			int[] oneStateTransitionSets = new int[oneStateSets.size()];
+			oneStateTransitionSets = convertListToArray(oneStateSets);
 			
 			for(int i1=0;i1<oneStateTransitionSets.length;i1++)
 			{
@@ -201,22 +203,14 @@ public class NDFSAUtil
 			finalStates.get(i1).setIsAccepting(isStateAcepting);
 			
 			//Determine if we have to link to existing states, or create new ones.
+			Collections.sort(zeroTransition);
+			Collections.sort(oneTransition);
 			 zeroTransitionState = stateExists(zeroTransition);
 			 oneTransitionState = stateExists(oneTransition);
 			 //Convert to array for NDFSAFinalState class
-			zeroStateTransitionSets = new int[zeroTransition.size()];
-			for(int i2=0;i2<zeroStateTransitionSets.length;i2++)
-			{
-				zeroStateTransitionSets[i2] = zeroTransition.get(i2);
-			}	
+			zeroStateTransitionSets = convertListToArray(zeroTransition);
+			oneStateTransitionSets = convertListToArray(oneTransition);
 
-			int[] oneStateTransitionSets = new int[oneTransition.size()];
-				
-			for(int i2=0;i2<oneStateTransitionSets.length;i2++)
-			{
-				oneStateTransitionSets[i2] = oneTransition.get(i2);
-			}			
-				
 			
 			if(zeroTransitionState == -1 && oneTransitionState == -1)
 			{
@@ -225,7 +219,7 @@ public class NDFSAUtil
 				finalStates.get(i1).setZeroTransition(lastStateInMachine() + 1);
 				finalStates.get(i1).setOneTransition(lastStateInMachine() + 1);
 				int lastState = lastStateInMachine();
-				finalStates.add(new NDFSAFinalStates(lastState,zeroStateTransitionSets));
+				finalStates.add(new NDFSAFinalStates(lastState+1,zeroStateTransitionSets));
 
 				}
 				else
@@ -233,8 +227,8 @@ public class NDFSAUtil
 					finalStates.get(i1).setZeroTransition(lastStateInMachine() + 1);
 					finalStates.get(i1).setOneTransition(lastStateInMachine() + 2);
 					int lastState = lastStateInMachine();
-					finalStates.add(new NDFSAFinalStates(lastState,zeroStateTransitionSets));
-					finalStates.add(new NDFSAFinalStates(lastState+1,oneStateTransitionSets));
+					finalStates.add(new NDFSAFinalStates(lastState+1,zeroStateTransitionSets));
+					finalStates.add(new NDFSAFinalStates(lastState+2,oneStateTransitionSets));
 					
 				}
 				
@@ -243,19 +237,21 @@ public class NDFSAUtil
 			{
 				finalStates.get(i1).setZeroTransition(lastStateInMachine() + 1);
 				int lastState = lastStateInMachine();
-				finalStates.add(new NDFSAFinalStates(lastState,zeroStateTransitionSets));
+				finalStates.add(new NDFSAFinalStates(lastState+1,zeroStateTransitionSets));
 				finalStates.get(i1).setOneTransition(oneTransitionState);				
 			}
 			else if(zeroTransitionState != -1 && oneTransitionState == -1)
 			{
 				finalStates.get(i1).setZeroTransition(zeroTransitionState);				
 				int lastState = lastStateInMachine();
-				finalStates.add(new NDFSAFinalStates(lastState,oneStateTransitionSets));				
+				finalStates.add(new NDFSAFinalStates(lastState+1,oneStateTransitionSets));				
 				finalStates.get(i1).setOneTransition(lastStateInMachine() + 1);		
 			}
 			else
 			{
-				System.out.println("readsadsd");
+				finalStates.get(i1).setOneTransition(oneTransitionState);
+				finalStates.get(i1).setZeroTransition(zeroTransitionState);
+	
 			}
 			 
 		}
@@ -322,6 +318,18 @@ public class NDFSAUtil
 		
 		}
 		return lastState;
+	}
+	
+	private int[] convertListToArray(ArrayList<Integer> inputList)
+	{
+		int[] returnArray = new int[inputList.size()];
+		for(int i2=0;i2<returnArray.length;i2++)
+		{
+			returnArray[i2] = inputList.get(i2);
+		}			
+		
+		return returnArray;
+		
 	}
 		
 		
